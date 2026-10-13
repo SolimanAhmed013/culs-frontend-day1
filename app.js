@@ -24,14 +24,35 @@ function card(herb) {
     element("h3", "name", herb.name),
     element("p", "latin", herb.latin),
     element("p", "use", herb.use),
-    element("p", "life", herb.life))
-  return item
+    element("p", "life", herb.life),
+  );
+
+  if (herb.name === "Basil") {
+    item.classList.add("basil-card");
+  }
+
+
+  return item;
 }
 
 async function show() {
-  const herbs = await loadHerbs()
-  list.replaceChildren(...herbs.map(card))
-  count.textContent = `${herbs.length} herbs grow here.`
+  const herbs = await loadHerbs();
+  list.replaceChildren(...herbs.map(card));
+  count.textContent = `${herbs.length} herbs grow here.`;
+  herbInfo();
 }
 
-show()
+function herbInfo() {
+  const herbs = document.querySelectorAll("#herbs-list .card");
+
+  herbs.forEach((herb) => {
+    herb.addEventListener("click", () => {
+      const selectedHerb = herb.querySelector(".name").textContent
+      console.log(herb.querySelector(".name").textContent);
+        window.location.href = `${selectedHerb.toLowerCase()}-info.html`;
+
+    });
+  });
+}
+
+show();

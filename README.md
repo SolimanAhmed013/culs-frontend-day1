@@ -1,3 +1,9 @@
+# GROUP MEMBERS
+- Aziz Bishoy Raafat Fares
+- Soliman Ahmed
+
+
+
 # The Little Herb Garden
 
 A small website for day 1 of **Frontend Development**.

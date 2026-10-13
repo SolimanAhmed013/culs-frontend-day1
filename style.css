@@ -126,3 +126,10 @@ footer {
   text-align: center;
   color: var(--soil);
 }
+
+.basil-card {
+  border: 2px solid #4caf50;
+  background-color: #f0fff0;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.25);
+  border-radius: 12px;
+}

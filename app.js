@@ -6,9 +6,112 @@ const count = document.querySelector(".count")
 const searchInput = document.querySelector("#search")
 const noResults = document.querySelector(".no-results")
 const herbPage = document.querySelector("#herb-page")
+const favBtn = document.querySelector("#fav-btn")
+const favDialog = document.querySelector("#fav-dialog")
+const favList = document.querySelector("#fav-list")
+const favEmpty = document.querySelector(".fav-empty")
+const favClose = document.querySelector("#fav-close")
 const homeSections = [...document.querySelectorAll("main > section")]
   .filter((section) => section !== herbPage)
 const siteTitle = document.title
+
+// --- Favourites: localStorage helpers ---
+
+function getFavourites() {
+  try {
+    return JSON.parse(localStorage.getItem("favourites") || "[]")
+  } catch {
+    return []
+  }
+}
+
+function saveFavourites(ids) {
+  try {
+    localStorage.setItem("favourites", JSON.stringify(ids))
+  } catch {
+    // localStorage may be blocked in some environments; silently ignore.
+  }
+}
+
+function isFavourite(id) {
+  return getFavourites().includes(id)
+}
+
+function toggleFavourite(id) {
+  const favs = getFavourites()
+  const index = favs.indexOf(id)
+  if (index === -1) {
+    favs.push(id)
+  } else {
+    favs.splice(index, 1)
+  }
+  saveFavourites(favs)
+  return favs.includes(id)
+}
+
+// --- Favourites: dialog ---
+
+function favItem(herb) {
+  const li = document.createElement("li")
+  li.className = "fav-item"
+
+  const info = document.createElement("div")
+  info.className = "fav-item-info"
+
+  const nameLink = document.createElement("a")
+  nameLink.className = "fav-item-name"
+  nameLink.href = `#${herb.id}`
+  nameLink.textContent = herb.name
+  nameLink.addEventListener("click", () => favDialog.close())
+
+  const latin = element("p", "fav-item-latin", herb.latin)
+  const use = element("p", "fav-item-use", herb.use)
+  info.append(nameLink, latin, use)
+
+  const remove = document.createElement("button")
+  remove.className = "fav-remove"
+  remove.textContent = "✕"
+  remove.setAttribute("aria-label", `Remove ${herb.name} from favourites`)
+  remove.addEventListener("click", () => {
+    toggleFavourite(herb.id)
+    updateStarOnCard(herb.id, false)
+    li.remove()
+    favEmpty.hidden = favList.children.length > 0
+  })
+
+  li.append(info, remove)
+  return li
+}
+
+async function openFavourites() {
+  const ids = getFavourites()
+  favEmpty.hidden = ids.length > 0
+  favList.replaceChildren()
+
+  if (ids.length > 0) {
+    // Load each favourite's data to show name, latin and use.
+    const herbs = await Promise.all(
+      ids.map((id) =>
+        loadJSON(`data/${id}.json`).catch(() => ({ id, name: id, latin: "", use: "Data unavailable." }))
+      )
+    )
+    favList.replaceChildren(...herbs.map(favItem))
+  }
+
+  favDialog.showModal()
+}
+
+// --- Star button helpers ---
+
+function updateStarOnCard(id, pressed) {
+  const star = list.querySelector(`[data-herb-id="${id}"] .star`)
+  if (star) {
+    star.setAttribute("aria-pressed", String(pressed))
+    star.setAttribute("aria-label", pressed ? `Remove ${id} from favourites` : `Add ${id} to favourites`)
+  }
+}
+
+// --- Fetch helpers ---
 
 async function loadJSON(url) {
   const response = await fetch(url)
@@ -38,15 +141,32 @@ function element(tag, className, text) {
 
 function card(herb) {
   const item = element("li", "card", "")
+  item.dataset.herbId = herb.id
+
   const name = element("h3", "name", "")
   const link = element("a", "", herb.name)
   link.href = `#${herb.id}`
   name.append(link)
+
+  const starred = isFavourite(herb.id)
+  const star = document.createElement("button")
+  star.className = "star"
+  star.textContent = "★"
+  star.setAttribute("aria-pressed", String(starred))
+  star.setAttribute("aria-label", starred ? `Remove ${herb.name} from favourites` : `Add ${herb.name} to favourites`)
+
+  star.addEventListener("click", () => {
+    const nowFav = toggleFavourite(herb.id)
+    star.setAttribute("aria-pressed", String(nowFav))
+    star.setAttribute("aria-label", nowFav ? `Remove ${herb.name} from favourites` : `Add ${herb.name} to favourites`)
+  })
+
   item.append(
     name,
     element("p", "latin", herb.latin),
     element("p", "use", herb.use),
     element("p", "life", herb.life),
+    star,
   )
 
   return item
@@ -117,7 +237,7 @@ async function showHerb(id) {
     heading.tabIndex = -1
     herbPage.replaceChildren(
       heading,
-      element("p", "", problem(error, `We don't grow “${id}” here.`)),
+      element("p", "", problem(error, `We don't grow "${id}" here.`)),
       backLink(),
     )
     document.title = `Herb not found | ${siteTitle}`
@@ -147,6 +267,16 @@ async function route() {
   herbPage.querySelector("h1")?.focus()
   window.scrollTo(0, 0)
 }
+
+// --- Event wiring ---
+
+favBtn.addEventListener("click", openFavourites)
+favClose.addEventListener("click", () => favDialog.close())
+
+// Close when clicking the backdrop.
+favDialog.addEventListener("click", (e) => {
+  if (e.target === favDialog) favDialog.close()
+})
 
 window.addEventListener("hashchange", route)
 showHerbs()

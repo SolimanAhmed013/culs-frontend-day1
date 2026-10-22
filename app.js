@@ -49,10 +49,6 @@ function card(herb) {
     element("p", "life", herb.life),
   )
 
-  if (herb.id === "basil") {
-    item.classList.add("basil-card")
-  }
-
   return item
 }
 

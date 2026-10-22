@@ -154,3 +154,35 @@ footer {
 .herb-page .life {
   display: inline-block;
 }
+
+.search-label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.search {
+  display: block;
+  width: 100%;
+  max-width: 28rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.375rem;
+  font: inherit;
+  font-size: 1rem;
+  background: white;
+  color: var(--ink);
+}
+
+.search:focus {
+  outline: 2px solid var(--leaf);
+  outline-offset: 2px;
+  border-color: var(--leaf);
+}
+
+.no-results {
+  color: var(--soil);
+  font-style: italic;
+}

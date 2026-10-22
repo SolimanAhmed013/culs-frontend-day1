@@ -69,3 +69,52 @@ app.js        what it does
 data/         the herbs, as JSON
 images/       the logo and a picture
 ```
+
+## One page for every herb
+
+`index.html` is the only page. The part after `#` picks what you see:
+
+- `index.html#herbs`, `#visit`, `#about` scroll to that part of the home page
+- `index.html#basil` shows one herb. `app.js` loads `data/basil.json` with `fetch()` and builds the page
+
+If the herb does not exist, a file is missing or the server cannot be reached,
+the page says so instead of staying empty.
+
+## The data format
+
+`data/herbs.json` lists every herb shown on the home page:
+
+```json
+[
+  {
+    "id": "basil",
+    "name": "Basil",
+    "latin": "Ocimum basilicum",
+    "use": "Tomatoes, pesto and anything summery.",
+    "life": "annual"
+  }
+]
+```
+
+Every herb also has its own file, `data/<id>.json`, for example `data/basil.json`:
+
+```json
+{
+  "name": "Basil",
+  "latin": "Ocimum basilicum",
+  "use": "Tomatoes, pesto and anything summery.",
+  "life": "annual",
+  "about": "An aromatic herb with soft, glossy leaves. …"
+}
+```
+
+| field   | meaning                                                 |
+| ------- | ------------------------------------------------------- |
+| `id`    | lowercase letters and `-` only; the file name and the `#` in the URL |
+| `name`  | the common name                                          |
+| `latin` | the botanical name                                       |
+| `use`   | what it is good for, in one sentence                     |
+| `life`  | `annual` or `perennial`                                  |
+| `about` | a short description, shown on the herb's own page        |
+
+To add a herb: add an entry to `data/herbs.json` and create `data/<id>.json`.

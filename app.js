@@ -3,6 +3,8 @@
 
 const list = document.querySelector("#herbs-list")
 const count = document.querySelector(".count")
+const searchInput = document.querySelector("#search")
+const noResults = document.querySelector(".no-results")
 const herbPage = document.querySelector("#herb-page")
 const homeSections = [...document.querySelectorAll("main > section")]
   .filter((section) => section !== herbPage)
@@ -54,11 +56,29 @@ function card(herb) {
   return item
 }
 
+// Filter the visible cards based on the current search term.
+function filterCards(term) {
+  const query = term.trim().toLowerCase()
+  const cards = list.querySelectorAll(".card")
+  let visible = 0
+
+  cards.forEach((card) => {
+    const text = card.textContent.toLowerCase()
+    const match = !query || text.includes(query)
+    card.hidden = !match
+    if (match) visible++
+  })
+
+  noResults.hidden = visible > 0
+}
+
 async function showHerbs() {
   try {
     const herbs = await loadJSON("data/herbs.json")
     list.replaceChildren(...herbs.map(card))
     count.textContent = `${herbs.length} herbs grow here.`
+    // Wire up search after cards exist.
+    searchInput.addEventListener("input", () => filterCards(searchInput.value))
   } catch (error) {
     count.textContent = problem(error, "The list of herbs is missing.")
   }

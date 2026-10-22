@@ -225,6 +225,20 @@ footer {
   outline: none;
 }
 
+.fav-count {
+  display: inline-block;
+  min-width: 1.25rem;
+  padding: 0 0.3rem;
+  border-radius: 1rem;
+  background: white;
+  color: var(--leaf);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
 /* --- Favourites dialog --- */
 
 #fav-dialog {

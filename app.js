@@ -7,6 +7,7 @@ const searchInput = document.querySelector("#search")
 const noResults = document.querySelector(".no-results")
 const herbPage = document.querySelector("#herb-page")
 const favBtn = document.querySelector("#fav-btn")
+const favCount = document.querySelector("#fav-count")
 const favDialog = document.querySelector("#fav-dialog")
 const favList = document.querySelector("#fav-list")
 const favEmpty = document.querySelector(".fav-empty")
@@ -35,6 +36,12 @@ function saveFavourites(ids) {
 
 function isFavourite(id) {
   return getFavourites().includes(id)
+}
+
+function updateFavCount() {
+  const n = getFavourites().length
+  favCount.textContent = n
+  favCount.hidden = n === 0
 }
 
 function toggleFavourite(id) {
@@ -75,6 +82,7 @@ function favItem(herb) {
   remove.addEventListener("click", () => {
     toggleFavourite(herb.id)
     updateStarOnCard(herb.id, false)
+    updateFavCount()
     li.remove()
     favEmpty.hidden = favList.children.length > 0
   })
@@ -159,6 +167,7 @@ function card(herb) {
     const nowFav = toggleFavourite(herb.id)
     star.setAttribute("aria-pressed", String(nowFav))
     star.setAttribute("aria-label", nowFav ? `Remove ${herb.name} from favourites` : `Add ${herb.name} to favourites`)
+    updateFavCount()
   })
 
   item.append(
@@ -281,3 +290,4 @@ favDialog.addEventListener("click", (e) => {
 window.addEventListener("hashchange", route)
 showHerbs()
 route()
+updateFavCount()

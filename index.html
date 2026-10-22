@@ -17,6 +17,7 @@
         <li><a href="#herbs">Herbs</a></li>
         <li><a href="#visit">Visit</a></li>
         <li><a href="#about">About</a></li>
+        <li><button class="fav-nav-btn" id="fav-btn" aria-haspopup="dialog">⭐ Favourites</button></li>
       </ul>
     </nav>
   </header>
@@ -54,6 +55,15 @@
         <a href="https://github.com/pepe/culs-frontend-day1">Frontend Development, day 1</a>.</p>
     </section>
   </main>
+
+  <dialog id="fav-dialog" aria-labelledby="fav-dialog-title">
+    <div class="fav-dialog-header">
+      <h2 id="fav-dialog-title">⭐ Favourites</h2>
+      <button class="fav-close" id="fav-close" aria-label="Close favourites">✕</button>
+    </div>
+    <p class="fav-empty" hidden>No favourites yet. Click the ★ on any herb card.</p>
+    <ul class="fav-list" id="fav-list"></ul>
+  </dialog>
 
   <footer>
     <p>Made with HTML, CSS and JavaScript.

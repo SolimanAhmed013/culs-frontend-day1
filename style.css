@@ -13,6 +13,11 @@
   box-sizing: border-box;
 }
 
+/* Keep hidden things hidden, even when a rule like .intro sets display. */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
@@ -132,4 +137,20 @@ footer {
   background-color: #f0fff0;
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.25);
   border-radius: 12px;
+}
+
+.card h3 a {
+  color: inherit;
+}
+
+.herb-page h1 {
+  margin-bottom: 0;
+}
+
+.herb-page h1:focus {
+  outline: none;
+}
+
+.herb-page .life {
+  display: inline-block;
 }

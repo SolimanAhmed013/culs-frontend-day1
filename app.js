@@ -11,9 +11,20 @@ const siteTitle = document.title
 async function loadJSON(url) {
   const response = await fetch(url)
   if (!response.ok) {
-    throw new Error(`Could not load ${response.url}: ${response.status} ${response.statusText}`)
+    const error = new Error(`Could not load ${response.url}: ${response.status} ${response.statusText}`)
+    error.status = response.status
+    throw error
   }
   return response.json()
+}
+
+// Turns an error into a sentence a visitor can understand.
+function problem(error, missing) {
+  console.error(error)
+  if (error.status === 404) return missing
+  // fetch() rejects with a TypeError when there is no server to answer.
+  if (error instanceof TypeError) return "The garden can't be reached right now. Check your connection and reload the page."
+  return "Something went wrong in the garden. Please reload the page."
 }
 
 function element(tag, className, text) {
@@ -44,18 +55,18 @@ function card(herb) {
 }
 
 async function showHerbs() {
-  const herbs = await loadJSON("data/herbs.json")
-  list.replaceChildren(...herbs.map(card))
-  count.textContent = `${herbs.length} herbs grow here.`
+  try {
+    const herbs = await loadJSON("data/herbs.json")
+    list.replaceChildren(...herbs.map(card))
+    count.textContent = `${herbs.length} herbs grow here.`
+  } catch (error) {
+    count.textContent = problem(error, "The list of herbs is missing.")
+  }
 }
 
 function herbDetails(herb) {
   const heading = element("h1", "", herb.name)
   heading.tabIndex = -1
-  const back = element("a", "", "← Back to all herbs")
-  back.href = "#herbs"
-  const backLine = element("p", "back", "")
-  backLine.append(back)
   return [
     heading,
     element("p", "latin", herb.latin),
@@ -64,14 +75,37 @@ function herbDetails(herb) {
     element("p", "use", herb.use),
     element("h2", "", "Life cycle"),
     element("p", "life", herb.life),
-    backLine,
+    backLink(),
   ]
 }
 
+function backLink() {
+  const back = element("a", "", "← Back to all herbs")
+  back.href = "#herbs"
+  const line = element("p", "back", "")
+  line.append(back)
+  return line
+}
+
 async function showHerb(id) {
-  const herb = await loadJSON(`data/${id}.json`)
-  herbPage.replaceChildren(...herbDetails(herb))
-  document.title = `${herb.name} | ${siteTitle}`
+  try {
+    // Only plain ids like "basil" become file names.
+    if (!/^[a-z-]+$/.test(id)) {
+      throw Object.assign(new Error(`Not a herb id: ${id}`), { status: 404 })
+    }
+    const herb = await loadJSON(`data/${id}.json`)
+    herbPage.replaceChildren(...herbDetails(herb))
+    document.title = `${herb.name} | ${siteTitle}`
+  } catch (error) {
+    const heading = element("h1", "", "Herb not found")
+    heading.tabIndex = -1
+    herbPage.replaceChildren(
+      heading,
+      element("p", "", problem(error, `We don't grow “${id}” here.`)),
+      backLink(),
+    )
+    document.title = `Herb not found | ${siteTitle}`
+  }
 }
 
 function showView(herbView) {
